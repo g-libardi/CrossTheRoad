@@ -159,7 +159,7 @@ class SimpleRoad(MapModule):
         for i, lane in enumerate(self.lanes):
             if 0 < self.car_spawn_rate * delta_time:
                 if i % 2 == 0:
-                    if not lane or lane[-1].x - self.x > 2.5:
+                    if not lane or lane[-1].x - self.x > 3.5:
                         lane.append(Car(self.x - 2, self.y + i, 2, 1, 1.5))
                 else:
                     if not lane or self.w - lane[-1].x > 2.5:
@@ -181,7 +181,7 @@ class SimpleRoad(MapModule):
 
 class Game(GameObject):
     def __init__(self):
-        super().__init__(0, 0, 16, 16)
+        super().__init__(0, 0, 20, 20)
         self.player = Player(8, 4, 1, 1)
         self.game_speed = 1 # squares per second
         self.road_size = 0
@@ -190,7 +190,7 @@ class Game(GameObject):
         self.__start()
 
     def __start(self):
-        self.add_module(SimpleGrass(0, 0, 16, 6))
+        self.add_module(SimpleGrass(0, 0, self.w, 6))
 
     def add_module(self, module):
         self.modules.append(module)
@@ -215,7 +215,7 @@ class Game(GameObject):
             self.y += self.game_speed * delta_time
         if self.y + self.h > self.road_size - 4:
             self.generate_module()
-        while self.modules[0].y + self.modules[0].h < self.y:
+        while self.modules[0].y + self.modules[0].h < self.y - 4:
             self.free_module()
 
     def gameover(self):

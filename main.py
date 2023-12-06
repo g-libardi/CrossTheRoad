@@ -4,6 +4,7 @@ from OpenGL.GLUT import *
 from game import *
 from time import time
 from PIL import Image
+from models import *
 
 global game, last_update
 game = Game()
@@ -50,63 +51,40 @@ def draw_textured_quad(texture_id, x, y, z, width=1.0, height=1.0):
 def set_coordinates():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(game.x, game.x + game.w, game.y, game.y + game.h, -4, 1)
+    glOrtho(0, game.w, 0, game.h, -50, 50)
     glMatrixMode(GL_MODELVIEW)
 
-def render_simple_grass(obj):
-    z = 0
-    glBegin(GL_QUADS)
-    glColor3f(0, 1, z)
-    glVertex3f(obj.x, obj.y, z)
-    glVertex3f(obj.x, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y, z)
-    glEnd()
 
-def render_simple_road(obj):
-    z = 0
-    glBegin(GL_QUADS)
-    glColor3f(0.5, 0.5, 0.5)
-    glVertex3f(obj.x, obj.y, z)
-    glVertex3f(obj.x, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y, z)
-    glEnd()
+def set_camera():
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
 
-def render_player(obj):
-    z = 1
-    glBegin(GL_QUADS)
-    glColor3f(1, 0, 0)
-    glVertex3f(obj.x, obj.y, z)
-    glVertex3f(obj.x, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y, z)
-    glEnd()
+    # Move the camera
+    glTranslatef(0, 8, 0)
+    
+    # Rotate the camera
+    glRotatef(-45, 1, 0, 0)
+    glRotatef(0, 0, 1, 0)
+    glRotatef(-45, 0, 0, 1)
 
-def render_car(obj):
-    z = 2
-    glBegin(GL_QUADS)
-    glColor3f(0, 0, 1)
-    glVertex3f(obj.x, obj.y, z)
-    glVertex3f(obj.x, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y + obj.h, z)
-    glVertex3f(obj.x + obj.w, obj.y, z)
-    glEnd()
+    glTranslatef(-4, -game.y, 0)
+
 
 def display():
     # global last_update
     # print('FPS: ', 1 / (time() - last_update))
     # last_update = time()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
     set_coordinates()
     glLoadIdentity()
+    set_camera()
+    lighting()
 
     Engine.update()
 
     if game.game_status == 1:
         texture_id = load_texture("gameover.png")
-        draw_textured_quad(texture_id, game.x, game.y, 3, game.w, game.h)
+        draw_textured_quad(texture_id, game.x + 2, game.y - 3, 3, game.w - 2, game.h - 2)
 
     glutSwapBuffers()
 
@@ -124,7 +102,7 @@ def main():
     Engine.register_input(GLUT_KEY_RIGHT, game.player.move_right)
 
     glutInit()
-    glutInitWindowSize(500, 500)
+    glutInitWindowSize(800, 800)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH)
     glutCreateWindow("Cross The Road!")
     glutDisplayFunc(display)
