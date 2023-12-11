@@ -2,6 +2,7 @@
 from time import time
 from random import randint, random, sample
 import random
+from abc import ABC, abstractmethod
 
 def hex_to_rgb(hex):
     return tuple(int(hex[i:i+2], 16) / 255 for i in (0, 2, 4))
@@ -10,7 +11,7 @@ car_colors = ["E899DC","53a548","e76f51","f4e04d","7371fc"]
 car_colors = [hex_to_rgb(color) for color in car_colors]
 
 
-class GameObject:
+class GameObject(ABC):
     def __init__(self, x=0, y=0, w=0, h=0):
         self.x = x
         self.y = y
