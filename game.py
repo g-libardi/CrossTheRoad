@@ -124,18 +124,41 @@ class Player(GameObject):
         super().__init__(x, y, w, h)
         self.collider = True
         self.life = 1
+        self.moving = False
+        self.next_position = (self.x, self.y)
     
+    def update(self, delta_time):
+        if self.moving:
+            speed = 5
+            direction = self.next_position[0] - self.x, self.next_position[1] - self.y
+            self.x += direction[0] * speed * delta_time / abs(direction[0]) if direction[0] != 0 else 0
+            self.y += direction[1] * speed * delta_time / abs(direction[1]) if direction[1] != 0 else 0
+            if abs(self.x - self.next_position[0]) < 0.1:
+                self.x = self.next_position[0]
+            if abs(self.y - self.next_position[1]) < 0.1:
+                self.y = self.next_position[1]
+            if (self.x, self.y) == self.next_position:
+                self.moving = False
+
     def move_up(self):
-        self.y += 1
+        if self.moving == False:
+            self.next_position = (self.x, self.y + 1)
+            self.moving = True
     
     def move_down(self):
-        self.y -= 1
+        if self.moving == False:
+            self.next_position = (self.x, self.y - 1)
+            self.moving = True
     
     def move_left(self):
-        self.x -= 1
+        if self.moving == False:
+            self.next_position = (self.x - 1, self.y)
+            self.moving = True
     
     def move_right(self):
-        self.x += 1
+        if self.moving == False:
+            self.next_position = (self.x + 1, self.y)
+            self.moving = True
 
     def on_collision(self, other):
         self.life -= 1
