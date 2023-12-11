@@ -1,7 +1,13 @@
 # cross the road(frogger) game
 from time import time
-from random import randint, random
+from random import randint, random, sample
+import random
 
+def hex_to_rgb(hex):
+    return tuple(int(hex[i:i+2], 16) / 255 for i in (0, 2, 4))
+
+car_colors = ["E899DC","53a548","e76f51","f4e04d","7371fc"]
+car_colors = [hex_to_rgb(color) for color in car_colors]
 
 
 class GameObject:
@@ -145,9 +151,13 @@ class Car(GameObject):
         super().__init__(x, y, w, h)
         self.speed = speed
         self.collider = True
+        self.color = sample(car_colors, 1)[0]
+        self.last_time = time()
     
     def update(self, delta_time):
+        delta_time = time() - self.last_time
         self.x += self.speed * delta_time
+        self.last_time = time()
 
 class SimpleRoad(MapModule):
     def __init__(self, x, y, w, h, car_spawn_rate = 0.5):

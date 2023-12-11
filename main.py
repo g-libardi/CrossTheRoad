@@ -21,16 +21,18 @@ def load_texture(file_path):
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
     return texture_id
 
-def draw_textured_quad(texture_id, x, y, z, width=1.0, height=1.0):
+def draw_textured_quad(texture_id, x, y, z, width=1.0, height=1.0, color_filter=None):
     glEnable(GL_TEXTURE_2D)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     glBindTexture(GL_TEXTURE_2D, texture_id)
+    # Set the color to red
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
 
     glBegin(GL_QUADS)
     glTexCoord2f(0, 0)
@@ -70,10 +72,14 @@ def set_camera():
     glTranslatef(-4, -game.y, 0)
 
 
+def timer_func(value):
+    glutPostRedisplay()
+    glutTimerFunc(1000 // 60, timer_func, 0)
+
 def display():
-    # global last_update
-    # print('FPS: ', 1 / (time() - last_update))
-    # last_update = time()
+    global last_update
+    print('FPS: ', 1 / (time() - last_update))
+    last_update = time()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     set_coordinates()
     glLoadIdentity()
@@ -106,7 +112,7 @@ def main():
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH)
     glutCreateWindow("Cross The Road!")
     glutDisplayFunc(display)
-    glutIdleFunc(display)
+    glutTimerFunc(1000 // 30, timer_func, 0)
     glutSpecialFunc(on_special_key)
     glEnable(GL_DEPTH_TEST)
     glutMainLoop()
