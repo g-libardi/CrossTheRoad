@@ -74,11 +74,25 @@ def set_camera():
 
 def timer_func(value):
     glutPostRedisplay()
-    glutTimerFunc(1000 // 120, timer_func, 0)
+    glutTimerFunc(1000 // 60, timer_func, 0)
+
+is_pressed = {}
+def on_special_key(key, x, y):
+    is_pressed[key] = True
+
+def on_special_key_up(key, x, y):
+    is_pressed[key] = False
+
+def check_keys():
+    for key in is_pressed:
+        if is_pressed[key]:
+            Engine.key_pressed(key, 0, 0)
+
 
 def display():
     global last_update
-    print('FPS: ', 1 / (time() - last_update))
+    # print('FPS: ', 1 / (time() - last_update))
+    check_keys()
     last_update = time()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     set_coordinates()
@@ -93,9 +107,6 @@ def display():
         draw_textured_quad(texture_id, game.x + 2, game.y - 3, 3, game.w - 2, game.h - 2)
 
     glutSwapBuffers()
-
-def on_special_key(key, x, y):
-    Engine.key_pressed(key, x, y)
 
 def main():
     Player.render = render_player
@@ -112,8 +123,9 @@ def main():
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH)
     glutCreateWindow("Cross The Road!")
     glutDisplayFunc(display)
-    glutTimerFunc(1000 // 30, timer_func, 0)
+    glutTimerFunc(1000 // 60, timer_func, 0)
     glutSpecialFunc(on_special_key)
+    glutSpecialUpFunc(on_special_key_up)
     glEnable(GL_DEPTH_TEST)
     glutMainLoop()
 

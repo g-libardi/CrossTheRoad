@@ -85,7 +85,7 @@ class Engine:
         BoxCollider.check_collisions()
         
         cls.last_update = time()
-        print(len(cls.objects))
+        # print(len(cls.objects))
 
     @classmethod
     def pause(cls):
