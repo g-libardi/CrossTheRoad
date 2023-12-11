@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from random import sample
+import math
 
 colors = {
     "red": (1, 0, 0),
@@ -106,7 +107,10 @@ def render_simple_road(obj):
 
 def render_player(obj):
     z = 1
+    glPushMatrix()
+    z += 0.5 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
     r_cube(obj.x, obj.y, z, obj.w, obj.h, 1, (1, 0, 0))
+    glPopMatrix()
 
 def render_car(obj):
     glPushMatrix()
