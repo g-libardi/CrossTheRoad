@@ -18,6 +18,7 @@ class GameObject:
         self.h = h
         self._collider = False
         Engine.new(self)
+        self.last_update = time()
 
     @property
     def collider(self):
@@ -31,6 +32,9 @@ class GameObject:
             BoxCollider.colliders.remove(self)
         self._collider = value
     
+    def update_time(self):
+        self.last_update = time()
+
     def update(self, delta_time):
         pass
     
@@ -66,14 +70,15 @@ class Engine:
 
     @classmethod
     def update(cls):
-        delta_time = time() - cls.last_update
         if cls._pause:
             for obj in cls.objects:
                 type(obj).render(obj)
             return
         
         for obj in cls.objects:
+            delta_time = time() - obj.last_update
             obj.update(delta_time)
+            obj.update_time()
             type(obj).render(obj)
         
         BoxCollider.check_collisions()
@@ -152,12 +157,9 @@ class Car(GameObject):
         self.speed = speed
         self.collider = True
         self.color = sample(car_colors, 1)[0]
-        self.last_time = time()
     
     def update(self, delta_time):
-        delta_time = time() - self.last_time
         self.x += self.speed * delta_time
-        self.last_time = time()
 
 class SimpleRoad(MapModule):
     def __init__(self, x, y, w, h, car_spawn_rate = 0.5):

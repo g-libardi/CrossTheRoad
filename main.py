@@ -74,7 +74,7 @@ def set_camera():
 
 def timer_func(value):
     glutPostRedisplay()
-    glutTimerFunc(1000 // 60, timer_func, 0)
+    glutTimerFunc(1000 // 120, timer_func, 0)
 
 def display():
     global last_update
