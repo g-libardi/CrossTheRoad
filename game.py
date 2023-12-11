@@ -1,8 +1,8 @@
 # cross the road(frogger) game
 from time import time
-from random import randint, random, sample
+from random import randint, sample
 import random
-from abc import ABC, abstractmethod
+from abc import ABC
 
 def hex_to_rgb(hex):
     return tuple(int(hex[i:i+2], 16) / 255 for i in (0, 2, 4))
@@ -78,8 +78,8 @@ class Engine:
         
         for obj in cls.objects:
             delta_time = time() - obj.last_update
-            obj.update(delta_time)
             obj.update_time()
+            obj.update(delta_time)
             type(obj).render(obj)
         
         BoxCollider.check_collisions()
