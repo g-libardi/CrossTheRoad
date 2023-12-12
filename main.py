@@ -129,6 +129,7 @@ def render_screen_ui():
 def display():
     global last_update
     # print('FPS: ', 1 / (time() - last_update))
+
     check_keys()
     last_update = time()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -144,14 +145,28 @@ def display():
 
     glutSwapBuffers()
 
-def is_point_outside_screen(x, y, z=1.0):
-    modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
-    projection = glGetDoublev(GL_PROJECTION_MATRIX)
-    viewport = glGetIntegerv(GL_VIEWPORT)
+def reshape(width, height):
+    Engine.pause()
+    size = min(width, height)
+    x = (width - size) / 2
+    y = (height - size) / 2
+    glViewport(int(x), int(y), size, size)
 
-    screen_x, screen_y, screen_z = gluProject(x, y, z, modelview, projection, viewport)
+    def is_point_outside_screen(x, y, z=1.0):
+        modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
+        projection = glGetDoublev(GL_PROJECTION_MATRIX)
+        viewport = glGetIntegerv(GL_VIEWPORT)
+        screen_x, screen_y, screen_z = gluProject(x, y, z, modelview, projection, viewport)
 
-    return screen_x < 0 or screen_x > viewport[2] or screen_y < 0 or screen_y > viewport[3]
+        # Adjust the window coordinates by the position of the viewport
+        screen_x -= viewport[0]
+        screen_y -= viewport[1]
+
+        return screen_x < 0 or screen_x > viewport[2] or screen_y < 0 or screen_y > viewport[3]
+
+    game.out_of_screen_bounds = is_point_outside_screen
+    Engine.unpause()
+    
 
 def init_game():
     Player.render = render_player
@@ -162,7 +177,6 @@ def init_game():
     Engine.register_input(GLUT_KEY_DOWN, game.player.move_down)
     Engine.register_input(GLUT_KEY_LEFT, game.player.move_left)
     Engine.register_input(GLUT_KEY_RIGHT, game.player.move_right)
-    game.out_of_screen_bounds = is_point_outside_screen
 
 def main():
     init_game()
@@ -176,6 +190,7 @@ def main():
     glutSpecialFunc(on_special_key)
     glutSpecialUpFunc(on_special_key_up)
     glutKeyboardFunc(on_keyboard)
+    glutReshapeFunc(reshape)
     glEnable(GL_DEPTH_TEST)
     glutMainLoop()
 
