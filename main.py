@@ -119,7 +119,7 @@ def render_screen_ui():
     if game.game_status == 1:
         texture_id = textures['gameover']
         glColor3f(1, 1, 1)
-        draw_textured_quad(texture_id, 0.05, 0.275, 0, 0.9, 0.45)
+        draw_textured_quad(texture_id, 0.1, 0.275, 0, 0.8, 0.45)
 
     glEnable(GL_DEPTH_TEST)
     glPopMatrix()
