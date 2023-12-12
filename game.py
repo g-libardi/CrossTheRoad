@@ -288,8 +288,8 @@ class Game(GameObject):
             self.y = self.player.y - self.h / 2
 
     def gameover(self):
-        # Engine.pause()
-        # self.game_status = 1
+        Engine.pause()
+        self.game_status = 1
         print('Game Over')
 
     def reset(self):
