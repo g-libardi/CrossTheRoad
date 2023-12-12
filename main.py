@@ -10,6 +10,7 @@ from models import *
 global game, last_update
 game = None
 last_update = time()
+ORTHO_CORDS = (0, 21, 0, 21, -50, 50)
 
 def load_texture(file_path):
     image = Image.open(file_path).convert("RGBA")
@@ -65,24 +66,29 @@ def render_text(x, y, text, color=(1, 1, 1), scale=0.0005):
 def set_coordinates():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(0, 20, 0, 20, -50, 50)
+    glOrtho(*ORTHO_CORDS)
     glMatrixMode(GL_MODELVIEW)
 
-
+camera_type = 0
 def set_camera():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-
-    # Move the camera
-    # glTranslatef(0, 8, 0)
     
     # Rotate the camera
-    glTranslatef(game.h * 2, 0, 0)
-    glRotatef(-45, 1, 0, 0)
-    glRotatef(0, 0, 1, 0)
-    glRotatef(-45, 0, 0, 1)
-    glTranslatef(-game.h * 2 - (game.w / 2 - game.h / 2), 0, 0)
-    glTranslatef(0, -game.y - game.h, 0)
+    initial_player_pos = game.player_initial_y + game.player.h/2
+    if camera_type == 0:
+        glTranslatef(game.w/2, initial_player_pos, 0)
+        glRotatef(-45, 1, 0, 0)
+        glRotatef(0, 0, 1, 0)
+        glRotatef(-25, 0, 0, 1)
+        glTranslatef(-game.w/2, -initial_player_pos, 0)
+    elif camera_type == 1:
+        glTranslatef(0, 0, 0)
+        glRotatef(-45, 1, 0, 0)
+        glRotatef(0, 0, 1, 0)
+        glRotatef(0, 0, 0, 1)
+        glTranslatef(-game.w/2 + ORTHO_CORDS[3]/2, 0, 0)
+    glTranslatef(0, -game.y, 0)
 
 
 
@@ -106,6 +112,9 @@ def on_keyboard(key, x, y):
             Engine.unpause()
         else:
             Engine.pause()
+    elif key == b'c':
+        global camera_type
+        camera_type = (camera_type + 1) % 2
 
 def check_keys():
     for key in is_pressed:
@@ -123,8 +132,8 @@ def render_screen_ui():
     glMatrixMode(GL_MODELVIEW)
     glDisable(GL_DEPTH_TEST)
 
-    player_y_text = f'Score: {game.score}'
-    render_text(0.005, 0.92, player_y_text)
+    player_y_text = f'Score:{game.score}'
+    render_text(0.03, 0.92, player_y_text)
 
     if game.game_status == 1:
         texture_id = load_texture("gameover.png")
@@ -176,10 +185,14 @@ def init_game():
     global game
 
     game_settings = {
-        'h': 20,
-        'w': 25,
+        'w': 19,
+        'h': 19,
         'gen_bounds': (-2, 20),
-        'game_speed': 1,
+        'game_speed': 2,
+        'player_initial_y': 8,
+        'player_speed': 4,
+        'car_speed': 2,
+        'car_spawn_rate': 0.6,
         'out_of_screen_func': is_point_outside_screen,
     }
 
