@@ -99,6 +99,11 @@ def on_keyboard(key, x, y):
     global game
     if key == b'r':
         game.reset()
+    elif key == b'p':
+        if Engine._pause:
+            Engine.unpause()
+        else:
+            Engine.pause()
 
 def check_keys():
     for key in is_pressed:

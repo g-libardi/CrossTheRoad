@@ -94,6 +94,8 @@ class Engine:
     @classmethod
     def unpause(cls):
         cls._pause = False
+        for obj in cls.objects:
+            obj.update_time()
     
     @classmethod
     def register_input(cls, key, action):
@@ -264,7 +266,6 @@ class Game(GameObject):
     def update(self, delta_time):
         if self.player.y - 8 > self.score:
             self.score = int(self.player.y - 8)
-        # map update
         if self.check_gameover():
             self.gameover()
         else:
