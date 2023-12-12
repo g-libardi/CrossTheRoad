@@ -1,4 +1,3 @@
-# cross the road(frogger) game
 from time import time
 from random import randint, sample
 import random
@@ -52,6 +51,7 @@ class GameObject(ABC):
     def destroy(self):
         Engine.destroy(self)
 
+
 class Engine:
     last_update = time()
     objects = []
@@ -85,7 +85,7 @@ class Engine:
         BoxCollider.check_collisions()
         
         cls.last_update = time()
-        # print(len(cls.objects))
+        print(len(cls.objects))
 
     @classmethod
     def pause(cls):
@@ -185,6 +185,7 @@ class Car(GameObject):
     def update(self, delta_time):
         self.x += self.speed * delta_time
 
+
 class SimpleRoad(MapModule):
     def __init__(self, x, y, w, h, car_spawn_rate = 0.5):
         super().__init__(x, y, w, h, 'simple_road')
@@ -214,26 +215,27 @@ class SimpleRoad(MapModule):
             for car in lane:
                 car.destroy()
 
-
 class Game(GameObject):
     def __init__(self):
-        super().__init__(0, 0, 20, 20)
-        self.player = Player(8, 4, 1, 1)
+        super().__init__(0, 0, 34, 20)
+        self.player = Player(int(self.w/2), 8, 1, 1)
         self.game_speed = 1 # squares per second
         self.road_size = 0
         self.game_status = 0 # 0 - playing, 1 - game over
         self.modules = []
         self.__start()
+        self.dathzones = []
+        self.out_of_screen_bounds = lambda: False
 
     def __start(self):
-        self.add_module(SimpleGrass(0, 0, self.w, 6))
+        self.add_module(SimpleGrass(0, 0, self.w, 16))
 
     def add_module(self, module):
         self.modules.append(module)
         self.road_size += module.h
     
     def generate_module(self):
-        module = SimpleRoad(0, self.road_size, self.w, randint(1, 3))
+        module = SimpleRoad(0, self.road_size, self.w, randint(1, 4))
         self.add_module(module)
         grass = SimpleGrass(0, self.road_size, self.w, 2)
         self.add_module(grass)
@@ -243,15 +245,23 @@ class Game(GameObject):
             module = self.modules.pop(0)
         module.destroy()
 
+    def check_gameover(self):
+        def get_line_point(x, p1, p2):
+            return (p2[1] - p1[1]) / (p2[0] - p1[0]) * (x - p1[0]) + p1[1]
+        if self.player.life <= 0:
+            self.gameover()
+        if self.out_of_screen_bounds(self.player.x, self.player.y):
+            self.gameover()
+
     def update(self, delta_time):
         # map update
-        if self.player.life <= 0:
+        if self.check_gameover():
             self.gameover()
         else:
             self.y += self.game_speed * delta_time
-        if self.y + self.h > self.road_size - 4:
+        if self.y + self.h > self.road_size - 8:
             self.generate_module()
-        while self.modules[0].y + self.modules[0].h < self.y - 4:
+        while self.modules[0].y + self.modules[0].h < self.y - 8:
             self.free_module()
 
     def gameover(self):
