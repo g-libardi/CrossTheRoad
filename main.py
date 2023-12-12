@@ -8,7 +8,7 @@ from PIL import Image
 from models import *
 
 global game, last_update
-game = Game()
+game = None
 last_update = time()
 
 def load_texture(file_path):
@@ -74,14 +74,16 @@ def set_camera():
     glLoadIdentity()
 
     # Move the camera
-    glTranslatef(0, 8, 0)
+    # glTranslatef(0, 8, 0)
     
     # Rotate the camera
+    glTranslatef(game.h * 2, 0, 0)
     glRotatef(-45, 1, 0, 0)
     glRotatef(0, 0, 1, 0)
     glRotatef(-45, 0, 0, 1)
+    glTranslatef(-game.h * 2 - (game.w / 2 - game.h / 2), 0, 0)
+    glTranslatef(0, -game.y - game.h, 0)
 
-    glTranslatef(-game.w / 3, -game.y - 8, 0)
 
 
 def timer_func(value):
@@ -156,8 +158,9 @@ def reshape(width, height):
     x = (width - size) / 2
     y = (height - size) / 2
     glViewport(int(x), int(y), size, size)
+    Engine.unpause()
 
-    def is_point_outside_screen(x, y, z=1.0):
+def is_point_outside_screen(x, y, z=1.0):
         modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
         projection = glGetDoublev(GL_PROJECTION_MATRIX)
         viewport = glGetIntegerv(GL_VIEWPORT)
@@ -169,11 +172,18 @@ def reshape(width, height):
 
         return screen_x < 0 or screen_x > viewport[2] or screen_y < 0 or screen_y > viewport[3]
 
-    game.out_of_screen_bounds = is_point_outside_screen
-    Engine.unpause()
-    
-
 def init_game():
+    global game
+
+    game_settings = {
+        'h': 20,
+        'w': 25,
+        'gen_bounds': (-2, 20),
+        'game_speed': 1,
+        'out_of_screen_func': is_point_outside_screen,
+    }
+
+    game = Game(**game_settings)
     Player.render = render_player
     Car.render = render_car
     SimpleGrass.render = render_simple_grass

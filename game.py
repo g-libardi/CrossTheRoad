@@ -225,16 +225,16 @@ class SimpleRoad(MapModule):
 
 
 class Game(GameObject):
-    def __init__(self):
-        super().__init__(0, 0, 34, 20)
+    def __init__(self, w, h, gen_bounds, game_speed, out_of_screen_func):
+        super().__init__(0, 0, w, h)
         self.player = Player(int(self.w/2), 8, 1, 1)
         self.score = 0
-        self.game_speed = 1 # squares per second
+        self.game_speed = game_speed # squares per second
         self.road_size = 0
         self.game_status = 0 # 0 - playing, 1 - game over
         self.modules = []
         self.__start()
-        self.out_of_screen_bounds = lambda: False
+        self.out_of_screen_bounds = out_of_screen_func
         self.gen_bounds = (-2, 20)
 
     def __start(self):
@@ -262,6 +262,10 @@ class Game(GameObject):
             self.gameover()
         if self.out_of_screen_bounds(self.player.x, self.player.y):
             self.gameover()
+        if not self.modules[0].y <= self.player.y < self.modules[-1].y + self.modules[-1].h:
+            self.gameover()
+        if not self.modules[0].x <= self.player.x < self.modules[0].x + self.modules[0].w:
+            self.gameover()
 
     def update(self, delta_time):
         if self.player.y - 8 > self.score:
@@ -276,7 +280,7 @@ class Game(GameObject):
             self.free_module()
 
     def gameover(self):
-        Engine.pause()
+        # Engine.pause()
         self.game_status = 1
         print('Game Over')
 
