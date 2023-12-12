@@ -1,6 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+from OpenGL.GLUT import glutStrokeCharacter, GLUT_STROKE_MONO_ROMAN
 from game import *
 from time import time
 from PIL import Image
@@ -50,6 +51,17 @@ def draw_textured_quad(texture_id, x, y, z, width=1.0, height=1.0, color_filter=
 
     glDisable(GL_TEXTURE_2D)
 
+def render_text(x, y, text, color=(1, 1, 1), scale=0.0005):
+    glPushMatrix()
+    glDisable(GL_LIGHTING)
+    glTranslatef(x, y, 0)
+    glScalef(scale, scale, scale)
+    glLineWidth(30)
+    glColor3f(*color)
+    for ch in text:
+        glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, ord(ch))
+    glPopMatrix()
+
 def set_coordinates():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -69,7 +81,7 @@ def set_camera():
     glRotatef(0, 0, 1, 0)
     glRotatef(-45, 0, 0, 1)
 
-    glTranslatef(-game.w / 3, -game.y - 5, 0)
+    glTranslatef(-game.w / 3, -game.y - 8, 0)
 
 
 def timer_func(value):
@@ -83,29 +95,52 @@ def on_special_key(key, x, y):
 def on_special_key_up(key, x, y):
     is_pressed[key] = False
 
+def on_keyboard(key, x, y):
+    global game
+    if key == b'r':
+        game.reset()
+
 def check_keys():
     for key in is_pressed:
         if is_pressed[key]:
             Engine.key_pressed(key, 0, 0)
 
+def render_screen_ui():
+    global score
+    glPushMatrix()
+    
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluOrtho2D(0, 1, 0, 1)
+    glMatrixMode(GL_MODELVIEW)
+    glDisable(GL_DEPTH_TEST)
+
+    player_y_text = f'Score: {game.score}'
+    render_text(0.005, 0.92, player_y_text)
+
+    if game.game_status == 1:
+        texture_id = load_texture("gameover.png")
+        draw_textured_quad(texture_id, 0, 0, 0, 1, 1)
+
+    glEnable(GL_DEPTH_TEST)
+    glPopMatrix()
+
 def display():
     global last_update
     # print('FPS: ', 1 / (time() - last_update))
-    print(game.player.x, game.player.y)
-    print(is_point_outside_screen(game.player.x, game.player.y, 1.01))
     check_keys()
     last_update = time()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     
+    set_coordinates()
     glLoadIdentity()
     set_camera()
     lighting()
 
     Engine.update()
 
-    if game.game_status == 1:
-        texture_id = load_texture("gameover.png")
-        draw_textured_quad(texture_id, game.w / 2 - 10 + 2, game.y + 8, 3, 20 - 2, 20 - 2)
+    render_screen_ui()
 
     glutSwapBuffers()
 
@@ -118,7 +153,7 @@ def is_point_outside_screen(x, y, z=1.0):
 
     return screen_x < 0 or screen_x > viewport[2] or screen_y < 0 or screen_y > viewport[3]
 
-def main():
+def init_game():
     Player.render = render_player
     Car.render = render_car
     SimpleGrass.render = render_simple_grass
@@ -129,6 +164,9 @@ def main():
     Engine.register_input(GLUT_KEY_RIGHT, game.player.move_right)
     game.out_of_screen_bounds = is_point_outside_screen
 
+def main():
+    init_game()
+
     glutInit()
     glutInitWindowSize(800, 800)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH)
@@ -137,8 +175,8 @@ def main():
     glutTimerFunc(1000 // 60, timer_func, 0)
     glutSpecialFunc(on_special_key)
     glutSpecialUpFunc(on_special_key_up)
+    glutKeyboardFunc(on_keyboard)
     glEnable(GL_DEPTH_TEST)
-    set_coordinates()
     glutMainLoop()
 
 if __name__ == "__main__":

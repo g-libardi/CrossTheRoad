@@ -106,6 +106,12 @@ class Engine:
         if key in cls.input_actions:
             cls.input_actions[key]()
 
+    @classmethod
+    def clear_entities(cls):
+        for obj in cls.objects:
+            obj.destroy()
+        cls.objects.clear()
+
 
 class BoxCollider:
     colliders = set()
@@ -215,17 +221,19 @@ class SimpleRoad(MapModule):
             for car in lane:
                 car.destroy()
 
+
 class Game(GameObject):
     def __init__(self):
         super().__init__(0, 0, 34, 20)
         self.player = Player(int(self.w/2), 8, 1, 1)
+        self.score = 0
         self.game_speed = 1 # squares per second
         self.road_size = 0
         self.game_status = 0 # 0 - playing, 1 - game over
         self.modules = []
         self.__start()
-        self.dathzones = []
         self.out_of_screen_bounds = lambda: False
+        self.gen_bounds = (-2, 20)
 
     def __start(self):
         self.add_module(SimpleGrass(0, 0, self.w, 16))
@@ -254,18 +262,36 @@ class Game(GameObject):
             self.gameover()
 
     def update(self, delta_time):
+        if self.player.y - 8 > self.score:
+            self.score = int(self.player.y - 8)
         # map update
         if self.check_gameover():
             self.gameover()
         else:
             self.y += self.game_speed * delta_time
-        if self.y + self.h > self.road_size - 8:
+        if self.y + self.h > self.road_size - self.gen_bounds[1]:
             self.generate_module()
-        while self.modules[0].y + self.modules[0].h < self.y - 8:
+        while self.modules[0].y + self.modules[0].h < self.y + self.gen_bounds[0]:
             self.free_module()
 
     def gameover(self):
         Engine.pause()
         self.game_status = 1
         print('Game Over')
+
+    def reset(self):
+        for module in self.modules:
+            module.destroy()
+        self.modules.clear()
+        self.x = 0
+        self.y = 0
+        self.road_size = 0
+        self.player.x = int(self.w/2)
+        self.player.y = 8
+        self.player.life = 1
+        self.player.next_position = (self.player.x, self.player.y)
+        self.game_status = 0
+        self.score = 0
+        self.__start()
+        Engine.unpause()
         
