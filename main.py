@@ -12,28 +12,12 @@ game = None
 last_update = time()
 ORTHO_CORDS = (0, 13, 0, 13, -50, 50)
 
-def load_texture(file_path):
-    image = Image.open(file_path).convert("RGBA")
-    texture_data = image.tobytes("raw", "RGBA", 0, -1)
-
-    width, height = image.size
-    texture_id = glGenTextures(1)
-
-    glBindTexture(GL_TEXTURE_2D, texture_id)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data)
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-    return texture_id
-
 def draw_textured_quad(texture_id, x, y, z, width=1.0, height=1.0, color_filter=None):
     glEnable(GL_TEXTURE_2D)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     glBindTexture(GL_TEXTURE_2D, texture_id)
-    # Set the color to red
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
 
     glBegin(GL_QUADS)
@@ -134,8 +118,9 @@ def render_screen_ui():
     render_text(0.03, 0.92, player_y_text)
 
     if game.game_status == 1:
-        texture_id = load_texture("gameover.png")
-        draw_textured_quad(texture_id, 0, 0, 0, 1, 1)
+        texture_id = textures['gameover']
+        glColor3f(1, 1, 1)
+        draw_textured_quad(texture_id, 0.05, 0.275, 0, 0.9, 0.45)
 
     glEnable(GL_DEPTH_TEST)
     glPopMatrix()
@@ -222,6 +207,7 @@ def main():
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    load_textures()
     glutMainLoop()
 
 if __name__ == "__main__":

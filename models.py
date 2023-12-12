@@ -3,6 +3,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from random import sample
 import math
+from PIL import Image
 
 colors = {
     "red": (1, 0, 0),
@@ -17,6 +18,25 @@ colors = {
     "grey": (0.5, 0.5, 0.5),
     "orange": (1, 0.5, 0),
 }
+
+textures = {}
+def load_texture(name, file_path):
+    image = Image.open(file_path).convert("RGBA")
+    texture_data = image.tobytes("raw", "RGBA", 0, -1)
+    width, height = image.size
+    texture_id = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    textures[name] = texture_id
+    return texture_id
+
+def load_textures():
+    load_texture('grass', 'grass.png')
+    load_texture('gameover', 'gameover.png')
+    load_texture('road', 'road.png')
+
 
 def lighting():
     glEnable(GL_LIGHTING)
@@ -65,46 +85,118 @@ def r_cube(x, y, z, dx, dy, dz, color=(1, 1, 1)):
     glEnd()
     glPopMatrix()
 
-def cube(x0, y0, z0, xf, yf, zf):
+def cube(x0, y0, z0, xf, yf, zf, texture=None, tex_scale=1):
+    # cube with quads and normals
+    glPushMatrix()
+    if texture:
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, texture)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     glBegin(GL_QUADS)
-    #normals
-    glNormal3f(0, 0, 1)
-    glVertex3f(x0, y0, z0)
-    glVertex3f(xf, y0, z0)
-    glVertex3f(xf, yf, z0)
-    glVertex3f(x0, yf, z0)
-    glNormal3f(0, 0, -1)
-    glVertex3f(x0, y0, zf)
-    glVertex3f(xf, y0, zf)
-    glVertex3f(xf, yf, zf)
-    glVertex3f(x0, yf, zf)
-    glNormal3f(0, 1, 0)
-    glVertex3f(x0, y0, z0)
-    glVertex3f(xf, y0, z0)
-    glVertex3f(xf, y0, zf)
-    glVertex3f(x0, y0, zf)
-    glNormal3f(0, -1, 0)
-    glVertex3f(x0, yf, z0)
-    glVertex3f(xf, yf, z0)
-    glVertex3f(xf, yf, zf)
-    glVertex3f(x0, yf, zf)
-    glNormal3f(1, 0, 0)
-    glVertex3f(x0, y0, z0)
-    glVertex3f(x0, yf, z0)
-    glVertex3f(x0, yf, zf)
-    glVertex3f(x0, y0, zf)
-    glNormal3f(-1, 0, 0)
-    glVertex3f(xf, y0, z0)
-    glVertex3f(xf, yf, z0)
-    glVertex3f(xf, yf, zf)
-    glVertex3f(xf, y0, zf)
+    if not texture:
+        glNormal3f(0, 0, 1)
+        glVertex3f(x0, y0, z0)
+        glVertex3f(xf, y0, z0)
+        glVertex3f(xf, yf, z0)
+        glVertex3f(x0, yf, z0)
+        glNormal3f(0, 0, -1)
+        glVertex3f(x0, y0, zf)
+        glVertex3f(xf, y0, zf)
+        glVertex3f(xf, yf, zf)
+        glVertex3f(x0, yf, zf)
+        glNormal3f(0, 1, 0)
+        glVertex3f(x0, y0, z0)
+        glVertex3f(xf, y0, z0)
+        glVertex3f(xf, y0, zf)
+        glVertex3f(x0, y0, zf)
+        glNormal3f(0, -1, 0)
+        glVertex3f(x0, yf, z0)
+        glVertex3f(xf, yf, z0)
+        glVertex3f(xf, yf, zf)
+        glVertex3f(x0, yf, zf)
+        glNormal3f(1, 0, 0)
+        glVertex3f(x0, y0, z0)
+        glVertex3f(x0, yf, z0)
+        glVertex3f(x0, yf, zf)
+        glVertex3f(x0, y0, zf)
+        glNormal3f(-1, 0, 0)
+        glVertex3f(xf, y0, z0)
+        glVertex3f(xf, yf, z0)
+        glVertex3f(xf, yf, zf)
+        glVertex3f(xf, y0, zf)
+    else:
+        glNormal3f(0, 0, 1)
+        glTexCoord2f(0, 0)
+        glVertex3f(x0, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(xf, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(xf, yf, z0)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(x0, yf, z0)
+
+        glNormal3f(0, 0, -1)
+        glTexCoord2f(0, 0)
+        glVertex3f(x0, y0, zf)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(xf, y0, zf)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(xf, yf, zf)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(x0, yf, zf)
+
+        glNormal3f(0, 1, 0)
+        glTexCoord2f(0, 0)
+        glVertex3f(x0, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(xf, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(xf, y0, zf)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(x0, y0, zf)
+
+        glNormal3f(0, -1, 0)
+        glTexCoord2f(0, 0)
+        glVertex3f(x0, yf, z0)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(xf, yf, z0)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(xf, yf, zf)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(x0, yf, zf)
+
+        glNormal3f(1, 0, 0)
+        glTexCoord2f(0, 0)
+        glVertex3f(x0, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(x0, yf, z0)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(x0, yf, zf)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(x0, y0, zf)
+
+        glNormal3f(-1, 0, 0)
+        glTexCoord2f(0, 0)
+        glVertex3f(xf, y0, z0)
+        glTexCoord2f((xf-x0) / tex_scale, 0)
+        glVertex3f(xf, yf, z0)
+        glTexCoord2f((xf-x0) / tex_scale, (yf-y0) / tex_scale)
+        glVertex3f(xf, yf, zf)
+        glTexCoord2f(0, (yf-y0) / tex_scale)
+        glVertex3f(xf, y0, zf)
     glEnd()
+    if texture:
+        glDisable(GL_TEXTURE_2D)
+    glPopMatrix()
 
 def render_simple_grass(obj):
-    r_cube(obj.x, obj.y, 0, obj.w, obj.h, 1, (0, 1, 0))
+    # glColor4f(0, 1.0, 0, 1)
+    glColor3f(1, 1, 1)
+    cube(obj.x, obj.y, 0, obj.x + obj.w, obj.y + obj.h, 1, textures['grass'], 10)
 
 def render_simple_road(obj):
-    r_cube(obj.x, obj.y, 0, obj.w, obj.h, 1, (0.5, 0.5, 0.5))
+    glColor3f(1, 1, 1)
+    cube(obj.x, obj.y, 0, obj.x + obj.w, obj.y + obj.h, 1, textures['road'], 1)
 
 def render_player(obj):
     z = 1
@@ -112,12 +204,12 @@ def render_player(obj):
     z += 0.5 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
     
     glTranslatef(obj.x, obj.y, z)
-    glTranslatef(0.5, 0.5, 0)
-    glScalef(obj.w, obj.h, obj.h)
+    glTranslatef(obj.w/2, obj.h/2, 0)
     if obj.direction == (0, -1):
         glRotatef(180, 0, 0, 1)
     else:
         glRotatef(-90 * obj.direction[0], 0, 0, 1)
+    glScalef(obj.w, obj.h, obj.h)
     glTranslatef(-0.5, -0.5, 0)
     
     glColor3f(*colors['white'])
@@ -147,22 +239,17 @@ def render_player_shadow(obj):
     glTranslatef(0, 0, 0.001)
     s = 1-0.3 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
     glTranslatef(obj.x, obj.y, 1)
-    glTranslatef(0.5, 0.5, 0)
+    glTranslatef(obj.w/2, obj.h/2, 0)
     glScalef(obj.w * 1.1, obj.h * 1.1, 1)
     glScalef(s, s, obj.h)
     glColor4f(0, 0, 0, 0.1)
-    glutSolidCylinder(0.5, 0.01, 10, 10)
+    glutSolidCylinder(0.5, 0.001, 10, 10)
     glPopMatrix()
 
 def render_car(obj):
     glPushMatrix()
     z = 1
     car_color = obj.color
-    #set metallic material
-    # glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (0.2, 0.2, 0.2, 1))
-    # glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, (0.8, 0.8, 0.8, 1))
-    # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (1, 1, 1, 1))
-    # glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
     glTranslatef(obj.x, obj.y, z)
     # Body of the car
     glColor3f(*car_color)
