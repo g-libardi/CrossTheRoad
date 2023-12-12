@@ -10,7 +10,7 @@ from models import *
 global game, last_update
 game = None
 last_update = time()
-ORTHO_CORDS = (0, 21, 0, 21, -50, 50)
+ORTHO_CORDS = (0, 13, 0, 13, -50, 50)
 
 def load_texture(file_path):
     image = Image.open(file_path).convert("RGBA")
@@ -89,8 +89,6 @@ def set_camera():
         glRotatef(0, 0, 0, 1)
         glTranslatef(-game.w/2 + ORTHO_CORDS[3]/2, 0, 0)
     glTranslatef(0, -game.y, 0)
-
-
 
 def timer_func(value):
     glutPostRedisplay()
@@ -185,8 +183,8 @@ def init_game():
     global game
 
     game_settings = {
-        'w': 19,
-        'h': 19,
+        'w': 13,
+        'h': 13,
         'gen_bounds': (-2, 20),
         'game_speed': 2,
         'player_initial_y': 8,
@@ -201,6 +199,8 @@ def init_game():
     Car.render = render_car
     SimpleGrass.render = render_simple_grass
     SimpleRoad.render = render_simple_road
+    Player.render_shadow = render_player_shadow
+    Car.render_shadow = render_car_shadow
     Engine.register_input(GLUT_KEY_UP, game.player.move_up)
     Engine.register_input(GLUT_KEY_DOWN, game.player.move_down)
     Engine.register_input(GLUT_KEY_LEFT, game.player.move_left)
@@ -220,6 +220,8 @@ def main():
     glutKeyboardFunc(on_keyboard)
     glutReshapeFunc(reshape)
     glEnable(GL_DEPTH_TEST)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glutMainLoop()
 
 if __name__ == "__main__":

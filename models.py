@@ -15,6 +15,7 @@ colors = {
     "black": (0, 0, 0),
     "gray": (0.5, 0.5, 0.5),
     "grey": (0.5, 0.5, 0.5),
+    "orange": (1, 0.5, 0),
 }
 
 def lighting():
@@ -109,7 +110,48 @@ def render_player(obj):
     z = 1
     glPushMatrix()
     z += 0.5 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
-    r_cube(obj.x, obj.y, z, obj.w, obj.h, 1, (1, 0, 0))
+    
+    glTranslatef(obj.x, obj.y, z)
+    glTranslatef(0.5, 0.5, 0)
+    glScalef(obj.w, obj.h, obj.h)
+    if obj.direction == (0, -1):
+        glRotatef(180, 0, 0, 1)
+    else:
+        glRotatef(-90 * obj.direction[0], 0, 0, 1)
+    glTranslatef(-0.5, -0.5, 0)
+    
+    glColor3f(*colors['white'])
+    #chicken
+    cube(0.00, 0.30, 0.20, 1.00, 0.80, 0.65)  # wings
+    cube(0.20, 0.10, 0.10, 0.80, 0.70, 0.70)  # body
+    cube(0.25, 0.00, 0.30, 0.75, 0.30, 0.70)  # tail
+    cube(0.35, 0.00, 0.60, 0.65, 0.10, 0.80)  # tail
+    
+    cube(0.30, 0.60, 0.40, 0.70, 0.95, 1.20)  # head
+
+    glColor3f(*colors['orange'])
+    cube(0.20, 0.40, 0.00, 0.40, 0.80, 0.10)  # left foot
+    cube(0.60, 0.40, 0.00, 0.80, 0.80, 0.10)  # right foot
+    cube(0.40, 0.95, 0.85, 0.60, 1.00, 1.00)  # beak
+    glColor3f(*colors['red'])
+    cube(0.40, 0.75, 1.20, 0.60, 0.90, 1.30)  # red comb
+
+    glColor3f(*colors['black'])
+    cube(0.30, 0.95, 1.00, 0.40, 0.96, 1.10)  # left eye
+    cube(0.60, 0.95, 1.00, 0.70, 0.96, 1.10)  # right eye
+    glPopMatrix()
+
+def render_player_shadow(obj):
+    # shadow
+    glPushMatrix()
+    glTranslatef(0, 0, 0.001)
+    s = 1-0.3 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
+    glTranslatef(obj.x, obj.y, 1)
+    glTranslatef(0.5, 0.5, 0)
+    glScalef(obj.w * 1.1, obj.h * 1.1, 1)
+    glScalef(s, s, obj.h)
+    glColor4f(0, 0, 0, 0.1)
+    glutSolidCylinder(0.5, 0.01, 10, 10)
     glPopMatrix()
 
 def render_car(obj):
@@ -142,4 +184,13 @@ def render_car(obj):
     cube(7/5, 0.05, 0, 9/5, 0.95, 1/2)
 
 
+    glPopMatrix()
+
+def render_car_shadow(obj):
+    # shadow
+    glPushMatrix()
+    glTranslatef(obj.x, obj.y, 1)
+    glScalef(obj.w, obj.h, 1)
+    glColor4f(0, 0, 0, 0.1)
+    cube(0.00, 0.00, 0.001, 1.00, 1.00, 0.002)
     glPopMatrix()

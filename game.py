@@ -41,6 +41,10 @@ class GameObject(ABC):
     @staticmethod
     def render(obj):
         pass
+
+    @staticmethod
+    def render_shadow(obj):
+        pass
     
     def on_collision(self, other):
         pass
@@ -74,6 +78,8 @@ class Engine:
         if cls._pause:
             for obj in cls.objects:
                 type(obj).render(obj)
+            for obj in cls.objects:
+                type(obj).render_shadow(obj)
             return
         
         for obj in cls.objects:
@@ -81,6 +87,9 @@ class Engine:
             obj.update_time()
             obj.update(delta_time)
             type(obj).render(obj)
+        
+        for obj in cls.objects:
+                type(obj).render_shadow(obj)
         
         BoxCollider.check_collisions()
         
@@ -134,14 +143,14 @@ class Player(GameObject):
         self.life = 1
         self.moving = False
         self.next_position = (self.x, self.y)
+        self.direction = (0, 1)
         self.speed = speed
     
     def update(self, delta_time):
         if self.moving:
             speed = self.speed
-            direction = self.next_position[0] - self.x, self.next_position[1] - self.y
-            self.x += direction[0] * speed * delta_time / abs(direction[0]) if direction[0] != 0 else 0
-            self.y += direction[1] * speed * delta_time / abs(direction[1]) if direction[1] != 0 else 0
+            self.x += self.direction[0] * speed * delta_time
+            self.y += self.direction[1] * speed * delta_time
             if abs(self.x - self.next_position[0]) < 0.1:
                 self.x = self.next_position[0]
             if abs(self.y - self.next_position[1]) < 0.1:
@@ -153,21 +162,25 @@ class Player(GameObject):
         if self.moving == False:
             self.next_position = (self.x, self.y + 1)
             self.moving = True
+            self.direction = 0, 1
     
     def move_down(self):
         if self.moving == False:
             self.next_position = (self.x, self.y - 1)
             self.moving = True
+            self.direction = 0, -1
     
     def move_left(self):
         if self.moving == False:
             self.next_position = (self.x - 1, self.y)
             self.moving = True
+            self.direction = -1, 0
     
     def move_right(self):
         if self.moving == False:
             self.next_position = (self.x + 1, self.y)
             self.moving = True
+            self.direction = 1, 0
 
     def on_collision(self, other):
         self.life -= 1
@@ -229,7 +242,7 @@ class SimpleRoad(MapModule):
 class Game(GameObject):
     def __init__(self, w, h, gen_bounds, game_speed, player_initial_y, out_of_screen_func, car_speed, car_spawn_rate, player_speed):
         super().__init__(0, 0, w, h)
-        self.player = Player(self.w/2, player_initial_y, 1, 1, player_speed)
+        self.player = Player(self.w/2, player_initial_y, 0.7, 0.7, player_speed)
         self.player_initial_y = player_initial_y
         self.score = 0
         self.road_size = 0
