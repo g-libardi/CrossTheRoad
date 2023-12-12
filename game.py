@@ -275,11 +275,9 @@ class Game(GameObject):
         module.destroy()
 
     def check_gameover(self):
-        def get_line_point(x, p1, p2):
-            return (p2[1] - p1[1]) / (p2[0] - p1[0]) * (x - p1[0]) + p1[1]
         if self.player.life <= 0:
             self.gameover()
-        if self.out_of_screen_bounds(self.player.x, self.player.y):
+        if self.out_of_screen_bounds(self.player.x + self.player.w/2, self.player.y + self.player.h/2):
             self.gameover()
         if not self.modules[0].y <= self.player.y < self.modules[-1].y + self.modules[-1].h:
             self.gameover()

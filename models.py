@@ -251,6 +251,10 @@ def render_car(obj):
     z = 1
     car_color = obj.color
     glTranslatef(obj.x, obj.y, z)
+    if obj.speed > 0:
+        glTranslatef(obj.w/2, obj.h/2, 0)
+        glRotatef(180, 0, 0, 1)
+        glTranslatef(-obj.w/2, -obj.h/2, 0)
     # Body of the car
     glColor3f(*car_color)
     cube(0, 0.1, 1/4, 1/5, 0.9, 4/5)

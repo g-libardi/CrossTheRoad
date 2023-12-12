@@ -151,7 +151,7 @@ def reshape(width, height):
     glViewport(int(x), int(y), size, size)
     Engine.unpause()
 
-def is_point_outside_screen(x, y, z=1.0):
+def is_point_outside_screen(x, y, z=1.5):
         modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
         projection = glGetDoublev(GL_PROJECTION_MATRIX)
         viewport = glGetIntegerv(GL_VIEWPORT)
