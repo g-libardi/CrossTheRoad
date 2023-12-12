@@ -144,12 +144,10 @@ def display():
     glutSwapBuffers()
 
 def reshape(width, height):
-    Engine.pause()
     size = min(width, height)
     x = (width - size) / 2
     y = (height - size) / 2
     glViewport(int(x), int(y), size, size)
-    Engine.unpause()
 
 def is_point_outside_screen(x, y, z=1.5):
         modelview = glGetDoublev(GL_MODELVIEW_MATRIX)
