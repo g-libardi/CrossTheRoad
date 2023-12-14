@@ -90,9 +90,9 @@ def on_keyboard(key, x, y):
         game.reset()
     elif key == b'p':
         if Engine._pause:
-            Engine.unpause()
+            game.unpause()
         else:
-            Engine.pause()
+            game.pause()
     elif key == b'c':
         global camera_type
         camera_type = (camera_type + 1) % 2

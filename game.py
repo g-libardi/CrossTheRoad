@@ -311,6 +311,13 @@ class Game(GameObject):
             audio.play_sound('./assets/gameover.wav', volume=0.35)
         self.game_status = 1
         print('Game Over')
+        
+    def pause(self):
+        Engine.pause()
+    
+    def unpause(self):
+        if self.game_status == 0:
+            Engine.unpause()
 
     def reset(self):
         for module in self.modules:
