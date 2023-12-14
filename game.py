@@ -247,7 +247,6 @@ class SimpleRoad(MapModule):
 class Game(GameObject):
     def __init__(self, w, h, gen_bounds, game_speed, player_initial_y, out_of_screen_func, car_speed, car_spawn_rate, player_speed):
         super().__init__(0, 0, w, h)
-        self.player = Player(self.w/2, player_initial_y, 0.7, 0.7, player_speed)
         self.player_initial_y = player_initial_y
         self.score = 0
         self.road_size = 0
@@ -260,6 +259,7 @@ class Game(GameObject):
         self.player_speed = player_speed * game_speed
         self.car_speed = car_speed * game_speed
         self.car_spawn_rate = car_spawn_rate
+        self.player = Player(self.w/2, player_initial_y, 0.7, 0.7, self.player_speed)
         audio.play_sound_loop('./assets/music.wav')
         sleep(0.1)
 

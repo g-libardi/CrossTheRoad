@@ -168,10 +168,10 @@ def init_game():
         'w': 24,
         'h': 13,
         'gen_bounds': (-8, 20),
-        'game_speed': 2,
+        'game_speed': 1,
         'player_initial_y': 8,
         'player_speed': 4,
-        'car_speed': 2,
+        'car_speed': 4,
         'car_spawn_rate': 0.6,
         'out_of_screen_func': is_point_outside_screen,
     }
