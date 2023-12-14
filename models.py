@@ -200,11 +200,13 @@ def render_simple_road(obj):
 
 def render_player(obj):
     z = 1
+    delta = math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
     glPushMatrix()
-    z += 0.5 * math.sin(math.sqrt((obj.x - obj.next_position[0]) ** 2 + (obj.y - obj.next_position[1]) ** 2) * math.pi)
+    z += 0.5 * delta
     
     glTranslatef(obj.x, obj.y, z)
     glTranslatef(obj.w/2, obj.h/2, 0)
+    glScalef(1 - 0.2 * delta, 1 - 0.2 * delta, 1 + 0.4 * delta)
     if obj.direction == (0, -1):
         glRotatef(180, 0, 0, 1)
     else:
