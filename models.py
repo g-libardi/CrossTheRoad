@@ -43,7 +43,7 @@ def lighting():
     glEnable(GL_LIGHT0)
     glEnable(GL_COLOR_MATERIAL)
     glShadeModel(GL_SMOOTH)
-    glLightfv(GL_LIGHT0, GL_POSITION, (-0.8, 1, -1.2, 0))  # Light now points downwards
+    glLightfv(GL_LIGHT0, GL_POSITION, (-1, 1.25, -2.5, 0))  # Light now points downwards
     glLightfv(GL_LIGHT0, GL_SPECULAR, (1, 1, 1, 1))
     glLightfv(GL_LIGHT0, GL_DIFFUSE, (1, 1, 1, 1))
 
@@ -244,7 +244,7 @@ def render_player_shadow(obj):
     glTranslatef(obj.w/2, obj.h/2, 0)
     glScalef(obj.w * 1.1, obj.h * 1.1, 1)
     glScalef(s, s, obj.h)
-    glColor4f(0, 0, 0, 0.1)
+    glColor4f(0, 0, 0, 0.15)
     glutSolidCylinder(0.5, 0.001, 10, 10)
     glPopMatrix()
 
@@ -284,6 +284,6 @@ def render_car_shadow(obj):
     glPushMatrix()
     glTranslatef(obj.x, obj.y, 1)
     glScalef(obj.w, obj.h, 1)
-    glColor4f(0, 0, 0, 0.1)
+    glColor4f(0, 0, 0, 0.15)
     cube(0.00, 0.00, 0.001, 1.00, 1.00, 0.002)
     glPopMatrix()
