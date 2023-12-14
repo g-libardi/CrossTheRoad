@@ -1,7 +1,8 @@
-from time import time
+from time import sleep, time
 from random import randint, sample
 import random
 from abc import ABC
+import audio
 
 def hex_to_rgb(hex):
     return tuple(int(hex[i:i+2], 16) / 255 for i in (0, 2, 4))
@@ -163,24 +164,28 @@ class Player(GameObject):
             self.next_position = (self.x, self.y + 1)
             self.moving = True
             self.direction = 0, 1
+            audio.play_sound('./assets/footstep.wav', volume=0.15)
     
     def move_down(self):
         if self.moving == False:
             self.next_position = (self.x, self.y - 1)
             self.moving = True
             self.direction = 0, -1
+            audio.play_sound('./assets/footstep.wav', volume=0.15)
     
     def move_left(self):
         if self.moving == False:
             self.next_position = (self.x - 1, self.y)
             self.moving = True
             self.direction = -1, 0
+            audio.play_sound('./assets/footstep.wav', volume=0.15)
     
     def move_right(self):
         if self.moving == False:
             self.next_position = (self.x + 1, self.y)
             self.moving = True
             self.direction = 1, 0
+            audio.play_sound('./assets/footstep.wav', volume=0.15)
 
     def on_collision(self, other):
         self.life -= 1
@@ -255,6 +260,9 @@ class Game(GameObject):
         self.player_speed = player_speed * game_speed
         self.car_speed = car_speed * game_speed
         self.car_spawn_rate = car_spawn_rate
+        audio.play_sound_loop('./assets/music.wav')
+        sleep(0.1)
+        # audio.play_sound_loop('./assets/traffic.wav')
 
     def __start(self):
         self.add_module(SimpleGrass(0, 0, self.w, 16))
@@ -300,6 +308,8 @@ class Game(GameObject):
 
     def gameover(self):
         Engine.pause()
+        if self.game_status == 0:
+            audio.play_sound('./assets/gameover.wav', volume=0.35)
         self.game_status = 1
         print('Game Over')
 
