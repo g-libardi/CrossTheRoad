@@ -37,7 +37,6 @@ def load_textures():
     load_texture('gameover', './assets/gameover.png')
     load_texture('road', './assets/road.png')
 
-
 def lighting():
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
