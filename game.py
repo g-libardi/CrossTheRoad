@@ -262,7 +262,6 @@ class Game(GameObject):
         self.car_spawn_rate = car_spawn_rate
         audio.play_sound_loop('./assets/music.wav')
         sleep(0.1)
-        # audio.play_sound_loop('./assets/traffic.wav')
 
     def __start(self):
         self.add_module(SimpleGrass(0, 0, self.w, 16))
